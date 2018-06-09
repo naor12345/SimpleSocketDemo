@@ -34,7 +34,7 @@ void client()
         cerr<<"connet error"<<endl;
         exit(1);
     }
-
+    
     write(sock, const_cast<char*>(DATA), strlen(DATA));
     if((recvBytes = recv(sock, buf, MAXSIZE, 0)) == -1)
     {

@@ -7,8 +7,17 @@ using namespace std;
 #include <unistd.h> //for fork
 #include <stdlib.h> // for exit
 
+void sigchld_handler(int signo)
+{
+    pid_t pid;
+    pid = waitpid(-1, NULL, WNOHANG);
+}
+
 void server()
 {
+    // recieve signal from child
+    signal(SIGCHLD, sigchld_handler);
+
     const unsigned short SERVERPORT = 53556;
     const int BACKLOG = 10;
     const int MAXSIZE = 1024;
@@ -45,6 +54,7 @@ void server()
         exit(1);
     }
 
+    int forkId;
     while(true)
     {
         unsigned int sin_size = sizeof(sockaddr_in);
@@ -53,9 +63,10 @@ void server()
             cerr<<"accept error" <<endl;
             continue;
         }
-        cout<<"Received a connection from "<<static_cast<char*>(inet_ntoa(remoteAddr.sin_addr));
+        cout<<"Received a connection from "<<static_cast<char*>(inet_ntoa(remoteAddr.sin_addr))<<endl;
+        
 
-        if(!fork())
+        if((forkId = fork()) == 0)
         {
             int rval;
             char buf[MAXSIZE];
@@ -71,8 +82,9 @@ void server()
             {
                 cerr<<"send error"<<endl;
                 close(client_fd);
-                exit(0);
+                //exit(0);
             }
+            exit(0);
         }
     }
 }
