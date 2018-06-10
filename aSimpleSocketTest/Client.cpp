@@ -12,7 +12,9 @@ void client()
     const unsigned short SERVERPORT = 53556;
     const int MAXSIZE = 1024;
     const char *SERVER_IP = "127.0.0.1";
-    const char *DATA = "hello Server";
+    //const char *DATA = "hello Server";
+    char inputChar[MAXSIZE];
+    cin>>inputChar;
 
     int sock, recvBytes; 
     char buf[MAXSIZE]; 
@@ -35,7 +37,7 @@ void client()
         exit(1);
     }
     
-    write(sock, const_cast<char*>(DATA), strlen(DATA));
+    write(sock, const_cast<char*>(inputChar), strlen(inputChar));
     if((recvBytes = recv(sock, buf, MAXSIZE, 0)) == -1)
     {
         cerr<<"recv error"<<endl;

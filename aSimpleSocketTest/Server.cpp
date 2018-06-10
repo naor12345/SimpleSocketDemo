@@ -10,13 +10,26 @@ using namespace std;
 void sigchld_handler(int signo)
 {
     pid_t pid;
-    pid = waitpid(-1, NULL, WNOHANG);
+    int stat;
+    while((pid = waitpid(-1, &stat, WNOHANG)) > 0)
+    {
+        // loop terminate for all child process
+        printf("child %d terminated\n", pid);
+    }
+}
+
+void sigint_handler(int signo)
+{
+    cout<<endl;
+    cout<<"quit "<<endl;
+    exit(0);
 }
 
 void server()
 {
     // recieve signal from child
     signal(SIGCHLD, sigchld_handler);
+    signal(SIGINT, sigint_handler);
 
     const unsigned short SERVERPORT = 53556;
     const int BACKLOG = 10;
@@ -58,27 +71,38 @@ void server()
     while(true)
     {
         unsigned int sin_size = sizeof(sockaddr_in);
-        if((client_fd = accept(sock, (sockaddr*)(&remoteAddr), &sin_size)) == -1 )
+        if((client_fd = accept(sock, (sockaddr*)(&remoteAddr), &sin_size)) < 0 )
         {
-            cerr<<"accept error" <<endl;
-            continue;
+            if(errno == EINTR)
+                continue;
+            else
+            {
+                cerr<<"accept error" <<endl;
+                // exit(1);
+                continue;
+            }
         }
-        cout<<"Received a connection from "<<static_cast<char*>(inet_ntoa(remoteAddr.sin_addr))<<endl;
+        cout<<"Received a connection from "<<static_cast<char*>(inet_ntoa(remoteAddr.sin_addr))<<" , fd: "<<client_fd<<endl;
         
 
         if((forkId = fork()) == 0)
         {
+            close(sock);
             int rval;
             char buf[MAXSIZE];
+            
+            // flush the buffer
+            //cout<<endl;
+            cout<<flush;
             if((rval = read(client_fd, buf, MAXSIZE)) < 0)
             {
                 cout<<"Reading stream error"<<endl;
                 continue;
             }
-            cout<<buf<<endl;
+            cout<<"from client: "<<buf<<endl;
 
-            const char *msg = "Hello abc";
-            if(send(client_fd, const_cast<char*>(msg), strlen(msg), 0) == -1)
+            //const char *msg = "Hello abc";
+            if(send(client_fd, const_cast<char*>(buf), strlen(buf), 0) == -1)
             {
                 cerr<<"send error"<<endl;
                 close(client_fd);
@@ -86,6 +110,7 @@ void server()
             }
             exit(0);
         }
+        close(client_fd);
     }
 }
 
