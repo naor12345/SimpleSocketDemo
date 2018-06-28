@@ -6,6 +6,7 @@ using namespace std;
 #include <arpa/inet.h> //for inet_ntoa
 #include <unistd.h> //for fork
 #include <stdlib.h> // for exit
+#include <stdio.h>
 
 #define SERVERPORT 53556
 #define BACKLOG 10
@@ -13,3 +14,4 @@ using namespace std;
     
 
 void str_echo(int sockfd);
+void str_cli(int sockfd);

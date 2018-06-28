@@ -6,11 +6,33 @@ using namespace std;
 #include <arpa/inet.h> //for inet_ntoa
 #include <unistd.h> //for fork
 #include <stdlib.h> // for exit
+#include <sys/wait.h>
 
-#include "aSimpleSocketTest/ServerApplication.h"
+#include "./NetworkApplication.h"
+
+static void sigchld_handler(int signo)
+{
+    pid_t pid;
+    int stat;
+    while((pid = waitpid(-1, &stat, WNOHANG)) > 0)
+    {
+        // loop terminate for all child process
+        printf("child %d terminated\n", pid);
+    }
+}
+
+static void sigint_handler(int signo)
+{
+    cout<<endl;
+    cout<<"quit "<<endl;
+    exit(0);
+}
 
 int main()
 {  
+    // recieve signal from child
+    signal(SIGCHLD, sigchld_handler);
+    signal(SIGINT, sigint_handler);
     int socketfd, connfd;
     pid_t childpid;
     socklen_t clilen;

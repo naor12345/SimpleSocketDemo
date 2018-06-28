@@ -5,4 +5,10 @@ Client:Client.cpp
 	g++ -o Client Client.cpp
 
 clean:
-	rm Client Server
+	rm Client Server ClientBook ServerBook
+
+ServerBook: ServerBook.cpp NetworkApplication.cpp
+	g++ -o ServerBook ServerBook.cpp NetworkApplication.cpp
+
+ClientBook: ClientBook.cpp NetworkApplication.cpp
+	g++ -o ClientBook ClientBook.cpp NetworkApplication.cpp

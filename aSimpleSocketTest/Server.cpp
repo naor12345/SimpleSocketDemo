@@ -6,6 +6,7 @@ using namespace std;
 #include <arpa/inet.h> //for inet_ntoa
 #include <unistd.h> //for fork
 #include <stdlib.h> // for exit
+#include <sys/wait.h>
 
 void sigchld_handler(int signo)
 {
